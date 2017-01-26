@@ -10,6 +10,7 @@ p.toolkit.check_ckan_version(min_version='2.0')
 class HierarchyDisplay(p.SingletonPlugin):
 
     p.implements(p.IConfigurer, inherit=True)
+    p.implements(p.IConfigurable)
     p.implements(p.IActions, inherit=True)
     p.implements(p.ITemplateHelpers)
 
@@ -21,6 +22,22 @@ class HierarchyDisplay(p.SingletonPlugin):
         p.toolkit.add_resource('public/scripts/vendor/jstree', 'jstree')
         p.toolkit.add_resource('public/scripts', 'hierarchy_js')
         p.toolkit.add_resource('fanstatic', 'hierarchy')
+
+    # IConfigurable
+
+    def configure(self, config):
+        # Raise an exception if required configs are missing
+        required_keys = [
+            'ckanext.hierarchy.show_organizations_without_datasets',
+        ]
+
+        for key in required_keys:
+            if config.get(key) is None:
+                raise RuntimeError(
+                    'Required configuration option {0} not found.'.format(
+                        key
+                    )
+                )
 
     # IActions
 
@@ -34,7 +51,8 @@ class HierarchyDisplay(p.SingletonPlugin):
     def get_helpers(self):
         return {
             'get_group_tree': helpers.get_group_tree,
-            'get_group_tree_section': helpers.get_group_tree_section
+            'get_group_tree_section': helpers.get_group_tree_section,
+            'show_organizations_without_datasets': helpers.show_organizations_without_datasets
         }
 
 

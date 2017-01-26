@@ -7,6 +7,8 @@ Displays a tree of organzations
 {% resource 'hierarchy/hierarchy_theme.css' %}
 <ul class="no-bullet organization-tree" data-organization-tree>
     {% for node in top_nodes recursive %}
+    {% if show_dataset_count == false or
+    (show_dataset_count != false and h.show_organizations_without_datasets()) %}
     <li id="node_{{ node.name }}" class="organization">
         {% if node.children %}
         <button class="js-expand btn btn-primary btn-xs"><i class="icon-plus"></i></button>
@@ -22,5 +24,6 @@ Displays a tree of organzations
         <ul class="no-bullet organization-subtree js-collapsed"> {{ loop(node.children) }} </ul>
         {% endif %}
     </li>
+    {% endif %}
     {% endfor %}
 </ul>
