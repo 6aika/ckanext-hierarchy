@@ -1,6 +1,7 @@
 import ckan.plugins as p
 import ckanext.hierarchy.logic.action as action
 from ckan.lib.plugins import DefaultOrganizationForm
+from ckanext.hierarchy import helpers
 
 # This plugin is designed to work only these versions of CKAN
 p.toolkit.check_ckan_version(min_version='2.0')
@@ -10,6 +11,7 @@ class HierarchyDisplay(p.SingletonPlugin):
 
     p.implements(p.IConfigurer, inherit=True)
     p.implements(p.IActions, inherit=True)
+    p.implements(p.ITemplateHelpers)
 
     # IConfigurer
 
@@ -17,7 +19,8 @@ class HierarchyDisplay(p.SingletonPlugin):
         p.toolkit.add_template_directory(config, 'templates')
         p.toolkit.add_template_directory(config, 'public')
         p.toolkit.add_resource('public/scripts/vendor/jstree', 'jstree')
-        p.toolkit.add_resource('public/scripts', 'hierarchy')
+        p.toolkit.add_resource('public/scripts', 'hierarchy_js')
+        p.toolkit.add_resource('fanstatic', 'hierarchy')
 
     # IActions
 
@@ -25,6 +28,14 @@ class HierarchyDisplay(p.SingletonPlugin):
         return {'group_tree': action.group_tree,
                 'group_tree_section': action.group_tree_section,
                 }
+
+    # ITemplateHelpers
+
+    def get_helpers(self):
+        return {
+            'get_group_tree': helpers.get_group_tree,
+            'get_group_tree_section': helpers.get_group_tree_section
+        }
 
 
 class HierarchyForm(p.SingletonPlugin, DefaultOrganizationForm):

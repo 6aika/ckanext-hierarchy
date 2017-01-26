@@ -1,0 +1,63 @@
+.organization-tree {
+    list-style: none;
+    padding: 0;
+}
+
+.organization-tree
+button {
+    display: inline-block;
+    position: absolute;
+    padding: 6px 15px;
+}
+
+.organization-tree
+button
+i[class^="icon-"] {
+    display: inline-block;
+    line-height: 22px;
+    text-align: center;
+    vertical-align: middle;
+    margin: 0;
+}
+
+.organization-tree
+button.js-collapse,
+.organization-tree
+.js-collapsed {
+    display: none;
+}
+
+.organization-tree
+.organization-row {
+    height: 35px;
+    padding-left: 50px;
+    margin-bottom: 10px;
+    background-color: #FFFFFF;
+}
+
+.organization-tree
+.organization-row
+a {
+    vertical-align: middle;
+    line-height: 35px;
+}
+
+.organization-tree
+.organization-row
+a.highlight{
+    background-color: #FFFFFF;
+}
+
+.organization-tree
+.organization-row
+a
+span.badge{
+    vertical-align: middle;
+}
+
+.organization-tree
+.organization-subtree {
+    list-style: none;
+    padding: 0;
+    margin-left: 50px;
+}
