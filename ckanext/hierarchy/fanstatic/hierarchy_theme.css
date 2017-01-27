@@ -44,8 +44,9 @@ a {
 
 .organization-tree
 .organization-row
-a.highlight{
-    background-color: #FFFFFF;
+span.highlight{
+    background-color: #5940BA;
+    color: #FFFFFF;
 }
 
 .organization-tree
@@ -59,5 +60,5 @@ span.badge{
 .organization-subtree {
     list-style: none;
     padding: 0;
-    margin-left: 50px;
+    margin-left: 40px;
 }
