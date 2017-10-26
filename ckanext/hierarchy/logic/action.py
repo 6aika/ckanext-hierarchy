@@ -29,7 +29,7 @@ def _accumulate_dataset_counts(groups, members):
 
 def _fetch_all_organizations(force_root_ids=None):
     groups_with_counts = model.Session.query(model.Group, func.count(model.Package.id)) \
-        .outerjoin(model.Package, and_(model.Package.owner_org == model.Group.id, model.Package.state == u'active')) \
+        .outerjoin(model.Package, and_(model.Package.owner_org == model.Group.id, model.Package.state == u'active', model.Package.private == False)) \
         .filter(model.Group.state == u'active') \
         .filter(model.Group.is_organization.is_(True)) \
         .group_by(model.Group.id) \
