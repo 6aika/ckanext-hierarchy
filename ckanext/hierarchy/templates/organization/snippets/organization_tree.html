@@ -11,8 +11,8 @@ Displays a tree of organzations
     (show_dataset_count != false and h.show_organizations_without_datasets()) %}
     <li id="node_{{ node.name }}" class="organization">
         {% if node.children %}
-        <button class="js-expand btn btn-primary btn-xs"><i class="icon-plus"></i></button>
-        <button class="js-collapse btn btn-gray btn-xs"><i class="icon-minus"></i></button>
+        <button class="js-expand btn btn-primary btn-xs" aria-label="{{ _('Expand') }}"><i class="icon-plus"></i></button>
+        <button class="js-collapse btn btn-gray btn-xs" aria-label="{{ _('Collapse') }}"><i class="icon-minus"></i></button>
         {% endif %}
         <div class="organization-row">
             {% if show_dataset_count == true %}
