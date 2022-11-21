@@ -7,6 +7,7 @@ from sqlalchemy import func, and_
 from sqlalchemy.orm import aliased
 
 log = logging.getLogger(__name__)
+_get_or_bust = logic.get_or_bust
 
 
 def _accumulate_dataset_counts(groups, members):
@@ -102,14 +103,12 @@ def _fetch_all_organizations(force_root_ids=None):
 @logic.side_effect_free
 def group_tree(context, data_dict):
     '''Returns the full group tree hierarchy.
-
     :returns: list of top-level GroupTreeNodes
     '''
-    top_level_groups, children = _fetch_all_organizations()
-    sorted_top_level_groups = sorted(top_level_groups, key=lambda g: g.name)
-    result = [_group_tree_branch(group, children=children.get(group.id, []))
-              for group in sorted_top_level_groups]
-    return result
+    model = _get_or_bust(context, 'model')
+    group_type = data_dict.get('type', 'group')
+    return [_group_tree_branch(group, type=group_type)
+            for group in model.Group.get_top_level_groups(type=group_type)]
 
 
 @logic.side_effect_free
@@ -173,19 +172,9 @@ def _nest_group_tree_list(group_tree_list, group_tree_leaf):
     last_node.add_child_node(group_tree_leaf)
     return root_node
 
-    if group.state == u'active':
-        # An optimal solution would be a recursive SQL query just for this, but this is fast enough for <10k organizations
-        roots, children = _fetch_all_organizations(force_root_ids=[group.id])
-        return _group_tree_branch(roots[0], highlight_group_name=group.name, children=children.get(group.id, []))
-    else:
-        group.subtree_dataset_count = 0
-        group.custom_extras = {}
-        return _group_tree_branch(group)
 
-
-def _group_tree_branch(root_group, highlight_group_name=None, children=[]):
+def _group_tree_branch(root_group, highlight_group_name=None, type='group'):
     '''Returns a branch of the group tree hierarchy, rooted in the given group.
-
     :param root_group_id: group object at the top of the part of the tree
     :param highlight_group_name: group name that is to be flagged 'highlighted'
     :returns: the top GroupTreeNode of the tree
@@ -194,27 +183,17 @@ def _group_tree_branch(root_group, highlight_group_name=None, children=[]):
     root_node = nodes[root_group.id] = GroupTreeNode(
         {'id': root_group.id,
          'name': root_group.name,
-         'title': root_group.title,
-         'dataset_count': root_group.subtree_dataset_count})
-
-    root_node.update(root_group.custom_extras)
+         'title': root_group.title})
     if root_group.name == highlight_group_name:
         nodes[root_group.id].highlight()
         highlight_group_name = None
-
-    for group_id, group_name, group_title, parent_id, dataset_count, extras in children:
+    for group_id, group_name, group_title, parent_id in \
+            root_group.get_children_group_hierarchy(type=type):
         node = GroupTreeNode({'id': group_id,
                               'name': group_name,
-                              'title': group_title,
-                              'dataset_count': dataset_count})
-        if extras:
-            node.update(extras)
-
+                              'title': group_title})
         nodes[parent_id].add_child_node(node)
-
         if highlight_group_name and group_name == highlight_group_name:
             node.highlight()
-
         nodes[group_id] = node
-
     return root_node
