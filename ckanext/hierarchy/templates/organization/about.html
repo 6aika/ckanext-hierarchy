@@ -1,5 +1,17 @@
 {% ckan_extends %}
 
+{% if group_dict is not defined %}
+    {% set group_dict = c.group_dict %}
+{% endif %}
+
+{% block page_heading %}
+  {% if group_dict.longname %}
+    {{ group_dict.longname }} ({{ group_dict.display_name }})
+  {% else %}
+      {{ super() }}
+  {% endif %}
+{% endblock %}
+
 {% block organization_description %}
   {{ super() }}
 
