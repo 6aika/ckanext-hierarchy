@@ -17,7 +17,8 @@ def get_group_tree_section():
 
 
 def show_organizations_without_datasets():
-    return True if p.toolkit.asbool(config.get('ckanext.hierarchy.show_organizations_without_datasets')) == True else False
+    return True if p.toolkit.asbool(config.get('ckanext.hierarchy.show_organizations_without_datasets')) \
+                   is True else False
 
 
 def group_tree(organizations=[], type_='organization'):
@@ -123,4 +124,3 @@ def is_include_children_selected():
         if request.params.get('include_children'):
             include_children_selected = True
     return include_children_selected
-

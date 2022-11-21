@@ -99,7 +99,6 @@ class HierarchyDisplay(p.SingletonPlugin):
             'is_include_children_selected': helpers.is_include_children_selected,
         }
 
-
     # IPackageController
 
     def before_dataset_search(self, search_params):
