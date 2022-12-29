@@ -49,18 +49,8 @@ class HierarchyDisplay(p.SingletonPlugin):
     def update_config(self, config):
         p.toolkit.add_template_directory(config, 'templates')
         p.toolkit.add_template_directory(config, 'public')
-        p.toolkit.add_resource('public/scripts', 'hierarchy_js')
         p.toolkit.add_resource('fanstatic', 'hierarchy')
 
-        try:
-            from ckan.lib.webassets_tools import add_public_path
-        except ImportError:
-            pass
-        else:
-            asset_path = os.path.join(
-                os.path.dirname(__file__), 'fanstatic'
-            )
-            add_public_path(asset_path, '/')
 
     # IConfigurable
     def configure(self, config):

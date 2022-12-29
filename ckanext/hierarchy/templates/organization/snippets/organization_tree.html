@@ -3,8 +3,9 @@ Displays a tree of organzations
 #}
 {% set show_dataset_count = show_dataset_count or false %}
 {% set url_prefix = h.url_for(controller='organization', action='read', id='') %}
-{% resource 'hierarchy_js/form.js' %}
-{% resource 'hierarchy/hierarchy_theme.css' %}
+{% set type = 'asset' if h.check_ckan_version("2.9.0", "2.10.0") else 'resource' %}
+{% include 'hierarchy/snippets/hierarchy_' ~ type ~ '.html' %}
+
 <ul class="no-bullet organization-tree" data-organization-tree>
     {% for node in top_nodes recursive %}
     {% if show_dataset_count == false or
