@@ -6,9 +6,9 @@ hierarchy_js:
       - base/main
   contents:
     - jquery.hierarchy.js
+    - form.js
 
 hierarchy_css:
-  filters: cssrewrite
   output: ckanext-hierarchy/%(version)s_hierarchy.css
   contents:
     - hierarchy_theme.css

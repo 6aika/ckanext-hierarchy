@@ -16,6 +16,6 @@ Example:
      {% else %}
      	{% set top_nodes = h.group_tree(organizations=organizations, type_='organization') %}
      {% endif %}
-     {% snippet 'organization/snippets/organization_tree.html', top_nodes=top_nodes, use_longnames=True %}
+     {% snippet 'organization/snippets/organization_tree.html', top_nodes=top_nodes, use_longnames=True, show_dataset_count=true %}
 
 </div>

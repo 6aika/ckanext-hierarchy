@@ -8,15 +8,13 @@ Displays a tree of organzations
 
 <ul class="no-bullet organization-tree" data-organization-tree>
     {% for node in top_nodes recursive %}
-    {% if show_dataset_count == false or
-    (show_dataset_count != false and h.show_organizations_without_datasets()) %}
     <li id="node_{{ node.name }}" class="organization">
         {% if node.children %}
-        <button class="js-expand btn btn-primary btn-xs" aria-label="{{ _('Expand') }}"><i class="icon-plus"></i></button>
-        <button class="js-collapse btn btn-gray btn-xs" aria-label="{{ _('Collapse') }}"><i class="icon-minus"></i></button>
+        <button class="js-expand btn btn-primary btn-xs" aria-label="{{ _('Expand') }}"><i class="fa fa-plus"></i></button>
+        <button class="js-collapse btn btn-gray btn-xs" aria-label="{{ _('Collapse') }}"><i class="fa fa-minus"></i></button>
         {% endif %}
         <div class="organization-row">
-            {% if show_dataset_count == true %}
+            {% if show_dataset_count == true and h.show_organizations_without_datasets() == false %}
             <span class="badge">{{ node.dataset_count }}</span>&nbsp;
             {% endif %}
             <a href="{{ url_prefix }}{{ node.name }}">{{ node.title }}</a>
@@ -25,6 +23,5 @@ Displays a tree of organzations
         <ul class="no-bullet organization-subtree js-collapsed"> {{ loop(node.children) }} </ul>
         {% endif %}
     </li>
-    {% endif %}
     {% endfor %}
 </ul>

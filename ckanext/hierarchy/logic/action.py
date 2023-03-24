@@ -105,10 +105,11 @@ def group_tree(context, data_dict):
     '''Returns the full group tree hierarchy.
     :returns: list of top-level GroupTreeNodes
     '''
-    model = _get_or_bust(context, 'model')
-    group_type = data_dict.get('type', 'group')
-    return [_group_tree_branch(group, type=group_type)
-            for group in model.Group.get_top_level_groups(type=group_type)]
+    top_level_groups, children = _fetch_all_organizations()
+    sorted_top_level_groups = sorted(top_level_groups, key=lambda g: g.name)
+    result = [_group_tree_branch(group, children=children.get(group.id, []))
+              for group in sorted_top_level_groups]
+    return result
 
 
 @logic.side_effect_free
@@ -132,23 +133,14 @@ def group_tree_section(context, data_dict):
             'Group type is "%s" not "%s" that %s' %
             (group.type, group_type, how_type_was_set))
 
-    include_parents = context.get('include_parents', True)
-    include_siblings = context.get('include_siblings', True)
-    if include_parents:
-        root_group = (group.get_parent_group_hierarchy(type=group_type)
-                      or [group])[0]
+    if group.state == u'active':
+        # An optimal solution would be a recursive SQL query just for this, but this is fast enough for <10k organizations
+        roots, children = _fetch_all_organizations(force_root_ids=[group.id])
+        return _group_tree_branch(roots[0], highlight_group_name=group.name, children=children.get(group.id, []))
     else:
-        root_group = group
-    if include_siblings or root_group == group:
-        return _group_tree_branch(root_group, highlight_group_name=group.name,
-                                  type=group_type)
-    else:
-        section_subtree = _group_tree_branch(group,
-                                             highlight_group_name=group.name,
-                                             type=group_type)
-        return _nest_group_tree_list(
-            group.get_parent_group_hierarchy(type=group_type),
-            section_subtree)
+        group.subtree_dataset_count = 0
+        group.custom_extras = {}
+        return _group_tree_branch(group)
 
 
 def _nest_group_tree_list(group_tree_list, group_tree_leaf):
@@ -173,25 +165,31 @@ def _nest_group_tree_list(group_tree_list, group_tree_leaf):
     return root_node
 
 
-def _group_tree_branch(root_group, highlight_group_name=None, type='group'):
+def _group_tree_branch(root_group, highlight_group_name=None, children=None):
     '''Returns a branch of the group tree hierarchy, rooted in the given group.
     :param root_group_id: group object at the top of the part of the tree
     :param highlight_group_name: group name that is to be flagged 'highlighted'
     :returns: the top GroupTreeNode of the tree
     '''
+    if children is None:
+        children = []
     nodes = {}  # group_id: GroupTreeNode()
     root_node = nodes[root_group.id] = GroupTreeNode(
         {'id': root_group.id,
          'name': root_group.name,
-         'title': root_group.title})
+         'title': root_group.title,
+         'dataset_count': root_group.subtree_dataset_count})
+
     if root_group.name == highlight_group_name:
         nodes[root_group.id].highlight()
         highlight_group_name = None
-    for group_id, group_name, group_title, parent_id in \
-            root_group.get_children_group_hierarchy(type=type):
+
+    for group_id, group_name, group_title, parent_id, dataset_count, extras in children:
         node = GroupTreeNode({'id': group_id,
                               'name': group_name,
-                              'title': group_title})
+                              'title': group_title,
+                              'dataset_count': dataset_count})
+
         nodes[parent_id].add_child_node(node)
         if highlight_group_name and group_name == highlight_group_name:
             node.highlight()
