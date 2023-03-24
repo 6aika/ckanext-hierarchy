@@ -78,6 +78,7 @@ class HierarchyDisplay(p.SingletonPlugin):
 
     def get_helpers(self):
         return {
+            'group_tree': helpers.group_tree,
             'get_group_tree': helpers.get_group_tree,
             'group_tree_section': helpers.group_tree_section,
             'get_group_tree_section': helpers.get_group_tree_section,
