@@ -1,6 +1,6 @@
 import ckan.plugins as p
 import ckan.model as model
-from ckan.common import request, is_flask_request
+from ckan.common import request
 from ckan.plugins.toolkit import g, config
 
 

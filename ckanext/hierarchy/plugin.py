@@ -1,5 +1,4 @@
 import logging
-import os
 
 import ckan.plugins as p
 
@@ -51,7 +50,6 @@ class HierarchyDisplay(p.SingletonPlugin):
         p.toolkit.add_template_directory(config, 'templates')
         p.toolkit.add_template_directory(config, 'public')
         p.toolkit.add_resource('fanstatic', 'hierarchy')
-
 
     # IConfigurable
     def configure(self, config):
