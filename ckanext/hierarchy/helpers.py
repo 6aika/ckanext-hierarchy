@@ -64,27 +64,40 @@ def group_tree_section(id_, type_='organization', include_parents=True,
         {'id': id_, 'type': type_, })
 
 
-def group_tree_parents(id_, type_='organization'):
-    tree_node = p.toolkit.get_action('organization_show')({}, {'id': id_,
-                                                               'include_dataset_count': False,
-                                                               'include_users': False,
-                                                               'include_followers': False,
-                                                               'include_tags': False})
+def _get_action_name(group_id):
+    model_obj = model.Group.get(group_id)
+    return "organization_show" if model_obj.is_organization else "group_show"
+
+
+def group_tree_parents(id_):
+    action_name = _get_action_name(id_)
+    data_dict = {
+        'id': id_,
+        'include_dataset_count': False,
+        'include_users': False,
+        'include_followers': False,
+        'include_tags': False
+    }
+    tree_node = p.toolkit.get_action(action_name)({}, data_dict)
     if (tree_node['groups']):
         parent_id = tree_node['groups'][0]['name']
         parent_node = \
-            p.toolkit.get_action('organization_show')({}, {'id': parent_id})
+            p.toolkit.get_action(action_name)({}, {'id': parent_id})
         return group_tree_parents(parent_id) + [parent_node]
     else:
         return []
 
 
 def group_tree_get_longname(id_, default="", type_='organization'):
-    tree_node = p.toolkit.get_action('organization_show')({}, {'id': id_,
-                                                               'include_dataset_count': False,
-                                                               'include_users': False,
-                                                               'include_followers': False,
-                                                               'include_tags': False})
+    action_name = _get_action_name(id_)
+    data_dict = {
+        'id': id_,
+        'include_dataset_count': False,
+        'include_users': False,
+        'include_followers': False,
+        'include_tags': False
+    }
+    tree_node = p.toolkit.get_action(action_name)({}, data_dict)
     longname = tree_node.get("longname", default)
     if not longname:
         return default
@@ -111,16 +124,23 @@ def get_allowable_parent_groups(group_id):
     if group_id:
         group = model.Group.get(group_id)
         allowable_parent_groups = \
-            group.groups_allowed_to_be_its_parent(type='organization')
+            group.groups_allowed_to_be_its_parent(type=group.type)
     else:
         allowable_parent_groups = model.Group.all(
-            group_type='organization')
+            group_type=p.toolkit.get_endpoint()[0])
     return allowable_parent_groups
 
 
 def is_include_children_selected():
     include_children_selected = False
-    if is_flask_request():
-        if request.params.get('include_children'):
+
+    if p.toolkit.check_ckan_version(min_version="2.10"):
+        is_flask = True
+    else:
+        from ckan.common import is_flask_request
+        is_flask = is_flask_request()
+
+    if is_flask:
+        if request.args.get('include_children'):
             include_children_selected = True
     return include_children_selected
